@@ -8,40 +8,33 @@ async def main():
     pygame.init()
     pygame.mixer.init()
 
-    # ---------------- 화면 설정 ----------------
+    # --- Screen Setup ---
     WIDTH, HEIGHT = 800, 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("🍭 귀여운 음식 잡기 게임 🍭")
+    pygame.display.set_caption("Cute Food Catching Game")
 
     clock = pygame.time.Clock()
     
-    # 웹 브라우저 호환성을 위해 폰트 체크
-    try:
-        font = pygame.font.SysFont("malgungothic", 36)
-        big_font = pygame.font.SysFont("malgungothic", 72)
-    except:
-        font = pygame.font.SysFont("Arial", 36)
-        big_font = pygame.font.SysFont("Arial", 72)
+    # Use default fonts for better web compatibility
+    font = pygame.font.SysFont("Arial", 36)
+    big_font = pygame.font.SysFont("Arial", 72)
 
-    # ---------------- 색상 ----------------
+    # --- Colors ---
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
 
-    # ---------------- 이미지 & 사운드 ----------------
-    # 배경 이미지
+    # --- Assets ---
     try:
         background_img = pygame.image.load("background.png").convert()
     except:
         background_img = None
 
-    # 입 이미지 (열림, 닫힘)
     try:
         mouth_open_img = pygame.image.load("mouth_open.png").convert_alpha()
         mouth_close_img = pygame.image.load("mouth_close.png").convert_alpha()
     except:
         mouth_open_img = mouth_close_img = None
 
-    # 음식 이미지들
     try:
         food_images = {
             "red": pygame.image.load("food_red.png"),
@@ -52,13 +45,12 @@ async def main():
     except:
         food_images = None
 
-    # 효과음
     try:
         catch_sound = pygame.mixer.Sound("catch.wav")
     except:
         catch_sound = None
 
-    # ---------------- 음식 종류 ----------------
+    # --- Food Types ---
     foods = [
         {"type": "pass", "name": "red"},
         {"type": "pass", "name": "yellow"},
@@ -66,7 +58,7 @@ async def main():
         {"type": "catch", "name": "green"},
     ]
 
-    # ---------------- 헬퍼 함수 ----------------
+    # --- Helpers ---
     def draw_background():
         if background_img:
             screen.blit(pygame.transform.scale(background_img, (WIDTH, HEIGHT)), (0, 0))
@@ -103,7 +95,7 @@ async def main():
         f = random.choice(foods)
         return {"x": random.randint(50, WIDTH-50), "y": 0, "type": f["type"], "name": f["name"], "vy": random.randint(4, 7)}
 
-    # ---------------- 메인 루프 변수 ----------------
+    # --- Game State ---
     state = "START"
     stats = {"red": 0, "yellow": 0, "blue": 0, "green": 0}
     score = 0
@@ -116,21 +108,20 @@ async def main():
         draw_background()
         
         if state == "START":
-            title = big_font.render("🍓 귀여운 음식 잡기 🍓", True, BLACK)
+            title = big_font.render("Cute Food Catching", True, BLACK)
             screen.blit(title, (WIDTH//2 - title.get_width()//2, 120))
-            guide1 = font.render("사과, 계란 = 통과!", True, BLACK)
-            guide2 = font.render("치킨, 라면 = 클릭!", True, BLACK)
+            guide1 = font.render("Apple, Egg = Let Pass", True, BLACK)
+            guide2 = font.render("Chicken, Ramen = Click!", True, BLACK)
             screen.blit(guide1, (WIDTH//2 - guide1.get_width()//2, 280))
             screen.blit(guide2, (WIDTH//2 - guide2.get_width()//2, 330))
             
-            # 음식 미리보기
-            for i, name in enumerate(["red", "yellow", "blue", "green"]):
-                x = WIDTH//2 - 180 + i * 120
-                if food_images:
+            if food_images:
+                for i, name in enumerate(["red", "yellow", "blue", "green"]):
+                    x = WIDTH//2 - 180 + i * 120
                     img = food_images[name]
                     screen.blit(img, (x - img.get_width()//2, 420))
             
-            start_btn = draw_button("게임 시작", WIDTH//2 - 100, 520, 200, 60)
+            start_btn = draw_button("START GAME", WIDTH//2 - 100, 520, 200, 60)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -187,19 +178,19 @@ async def main():
 
             draw_mouth(mouth_open)
             time_left = max(0, int(30 - elapsed))
-            screen.blit(font.render(f"점수: {score}", True, BLACK), (20, 20))
-            screen.blit(font.render(f"시간: {time_left}s", True, BLACK), (20, 60))
+            screen.blit(font.render(f"Score: {score}", True, BLACK), (20, 20))
+            screen.blit(font.render(f"Time: {time_left}s", True, BLACK), (20, 60))
 
         elif state == "RESULT":
-            title = big_font.render("🎉 게임 종료! 🎉", True, BLACK)
+            title = big_font.render("Game Over!", True, BLACK)
             screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
-            res = [f"잡은 치킨: {stats['blue']}", f"잡은 라면: {stats['green']}",
-                   f"통과한 사과: {stats['red']}", f"통과한 계란: {stats['yellow']}"]
+            res = [f"Chickens: {stats['blue']}", f"Ramen: {stats['green']}",
+                   f"Apples: {stats['red']}", f"Eggs: {stats['yellow']}"]
             for i, line in enumerate(res):
                 txt = font.render(line, True, BLACK)
                 screen.blit(txt, (WIDTH//2 - txt.get_width()//2, 220 + i*40))
             
-            restart_btn = draw_button("다시 시작", WIDTH//2 - 100, 500, 200, 60)
+            restart_btn = draw_button("RESTART", WIDTH//2 - 100, 500, 200, 60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -209,7 +200,7 @@ async def main():
                         state = "START"
 
         pygame.display.flip()
-        await asyncio.sleep(0) # IMPORTANT for web
+        await asyncio.sleep(0)
         clock.tick(60)
 
 asyncio.run(main())
